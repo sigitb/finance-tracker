@@ -6,10 +6,42 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
+import {zodResolver} from "@hookform/resolvers/zod"
+import { toast } from "sonner"
+import { LoginFormSchema, loginSchema } from "@/lib/validation"
+import { useRouter } from "next/navigation"
+import { loginUser } from "@/lib/actions/auth-action"
 
 export function LoginForm() {
     const [isLoading, setLoading] = useState(false)
-    const form = useForm({})
+    const form = useForm<LoginFormSchema>({
+        resolver:zodResolver(loginSchema),
+                defaultValues:{
+                    email:"",
+                    password:""
+                }
+    })
+
+    const router = useRouter()
+
+    const onLoggedIn = async (values: LoginFormSchema) => {
+        setLoading(true)
+        try {
+            const result = await loginUser({
+                email: values.email,
+                password: values.password
+            })
+            if(result.error){
+                toast.error("Invalid credentials")
+            }else{
+                router.push('/dashboard')
+            }
+        } catch (error) {
+            toast.error('Something went wrong')
+        } finally {
+            setLoading(false)
+        }
+    }
 
     return (
         <Card>
@@ -18,7 +50,7 @@ export function LoginForm() {
                 <CardDescription>Enter to credential to access dashboard</CardDescription>
             </CardHeader>
             <Form {...form}>
-                <form>
+                <form onSubmit={form.handleSubmit(onLoggedIn)}>
                     <CardContent className="space-y-4">
                         <FormField
                             name="email"

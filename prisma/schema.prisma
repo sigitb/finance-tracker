@@ -18,13 +18,14 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String    @unique
+  password      String
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   Transcation Transaction[]
 }
 
@@ -51,7 +52,7 @@ model Account {
 }
 
 model Session {
-  id            String          @id @default(cuid())
+  id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
@@ -69,16 +70,16 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
-model Transaction{
-  id            String          @id @default(cuid())
-  amount Float
+model Transaction {
+  id          String   @id @default(cuid())
+  amount      Float
   description String
-  date DateTime
-  type String
-  category String
-  userId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  date        DateTime
+  type        String
+  category    String
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

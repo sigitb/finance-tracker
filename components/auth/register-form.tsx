@@ -6,10 +6,43 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
-
+import { RegisterFormSchema, registerSchema } from "@/lib/validation"
+import {zodResolver} from "@hookform/resolvers/zod"
+import { registerUser } from "@/lib/actions/auth-action"
+import { toast } from "sonner"
 export function RegisterForm() {
     const [isLoading, setLoading] = useState(false)
-    const form = useForm({})
+    const form = useForm<RegisterFormSchema>({
+        resolver:zodResolver(registerSchema),
+        defaultValues:{
+            name: "",
+            email:"",
+            confirmPassword:"",
+            password:""
+        }
+    })
+
+    const onRegister = async (values:RegisterFormSchema) => {
+        setLoading(true)
+        try {
+            const result = await registerUser({
+                name: values.name,
+                email: values.email,
+                password: values.password,
+                confirmPassword:values.confirmPassword,
+            })
+            if(result.success){
+                toast.success('Account created successfully')
+                form.reset()
+            }else{
+                toast.error(result.error || "Something went wrong")
+            }
+        } catch (error) {
+            toast.error("Something went wrong")
+        } finally{
+            setLoading(false)
+        }
+    }
 
     return (
         <Card>
@@ -18,7 +51,7 @@ export function RegisterForm() {
                 <CardDescription>Enter to information to create new account</CardDescription>
             </CardHeader>
             <Form {...form}>
-                <form>
+                <form onSubmit={form.handleSubmit(onRegister)}>
                     <CardContent className="space-y-4">
                         <FormField
                             name="name"
@@ -71,7 +104,7 @@ export function RegisterForm() {
                             )}>
                         </FormField>
                         <FormField
-                            name="password_confirmation"
+                            name="confirmPassword"
                             control={form.control}
                             render={({ field }) => (
                                 <FormItem>
