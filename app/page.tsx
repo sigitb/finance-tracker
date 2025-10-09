@@ -1,7 +1,12 @@
 import AuthTabs from "@/components/auth/auth-tabs";
-import Image from "next/image";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth()
+  if(session){
+    redirect('/dashboard')
+  }
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
       <div className="w-full max-w-md space-y-8">
